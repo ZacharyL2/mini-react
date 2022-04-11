@@ -10,7 +10,7 @@ const Fragment = Symbol.for('react.fragment');
 // Enhanced requestIdleCallback.
 ((global) => {
   const id = 1;
-  const fps = 1000 / 60;
+  const fps = 1e3 / 60;
   let frameDeadline;
   let pendingCallback;
   const channel = new MessageChannel();
@@ -38,7 +38,9 @@ const Fragment = Symbol.for('react.fragment');
 })(window);
 
 const isDef = (param) => param !== void 0 && param !== null;
-const isObject = (obj) => obj instanceof Object && obj.constructor === Object;
+const isPlainObject = (val) =>
+  Object.prototype.toString.call(val) === '[object Object]' &&
+  [Object.prototype, null].includes(Object.getPrototypeOf(val));
 
 // Text elements require special handling.
 const createTextElement = (text) => ({
@@ -58,7 +60,10 @@ const createElement = (type, props = {}, ...child) => {
 
   return {
     type,
-    props: { ...props, children },
+    props: {
+      ...props,
+      children,
+    },
   };
 };
 
@@ -70,7 +75,7 @@ const updateDOM = (DOM, prevProps, nextProps) => {
   for (const [removePropKey, removePropValue] of Object.entries(prevProps)) {
     if (removePropKey.startsWith('on')) {
       DOM.removeEventListener(
-        removePropKey.substr(2).toLowerCase(),
+        removePropKey.slice(2).toLowerCase(),
         removePropValue
       );
     } else if (removePropKey !== defaultPropKeys) {
@@ -80,7 +85,7 @@ const updateDOM = (DOM, prevProps, nextProps) => {
 
   for (const [addPropKey, addPropValue] of Object.entries(nextProps)) {
     if (addPropKey.startsWith('on')) {
-      DOM.addEventListener(addPropKey.substr(2).toLowerCase(), addPropValue);
+      DOM.addEventListener(addPropKey.slice(2).toLowerCase(), addPropValue);
     } else if (addPropKey !== defaultPropKeys) {
       DOM[addPropKey] = addPropValue;
     }
@@ -138,11 +143,7 @@ const commitRoot = () => {
     if (fiberNode) {
       if (fiberNode.dom) {
         const parentFiber = findParentFiber(fiberNode);
-        const parentDOM =
-          parentFiber === null || parentFiber === void 0
-            ? void 0
-            : parentFiber.dom;
-
+        const parentDOM = parentFiber?.dom;
         switch (fiberNode.effectTag) {
           case 'REPLACEMENT':
             commitReplacement(parentDOM, fiberNode.dom);
@@ -167,12 +168,7 @@ const commitRoot = () => {
   for (const deletion of deletions) {
     if (deletion.dom) {
       const parentFiber = findParentFiber(deletion);
-      commitDeletion(
-        parentFiber === null || parentFiber === void 0
-          ? void 0
-          : parentFiber.dom,
-        deletion.dom
-      );
+      commitDeletion(parentFiber?.dom, deletion.dom);
     }
   }
 
@@ -267,7 +263,7 @@ const performUnitOfWork = (fiberNode) => {
         component.props = fiberNode.props;
         component.state = state;
         component.setState = setState;
-        const children = component.render?.();
+        const children = component.render?.bind(component)();
         reconcileChildren(fiberNode, [children]);
       } else {
         reconcileChildren(fiberNode, [type(fiberNode.props)]);
@@ -330,10 +326,14 @@ const workLoop = (deadline) => {
 const render = (element, container) => {
   currentRoot = null;
   wipRoot = {
-    type: Fragment,
+    type: 'div',
     dom: container,
     props: {
-      children: [{ ...element }],
+      children: [
+        {
+          ...element,
+        },
+      ],
     },
     alternate: currentRoot,
   };
@@ -358,9 +358,11 @@ function useState(initState) {
   /* eslint-disable no-unused-vars */
   for (const _ of [...Array(queueLength)]) {
     let newState = hook.queue.shift();
-
-    if (isObject(hook.state) && isObject(newState)) {
-      newState = { ...hook.state, ...newState };
+    if (isPlainObject(hook.state) && isPlainObject(newState)) {
+      newState = {
+        ...hook.state,
+        ...newState,
+      };
     }
 
     hook.state = newState;
@@ -393,6 +395,7 @@ function useState(initState) {
 }
 
 class Component {
+  props;
   constructor(props) {
     this.props = props;
   }
@@ -407,8 +410,8 @@ void (function main() {
 })();
 
 export default {
-  render,
   createElement,
+  render,
   useState,
   Component,
   Fragment,
