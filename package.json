@@ -10,6 +10,9 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^1.0.7",
+    "code-fabric": "^2.2.0",
+    "lint-staged": "^12.3.7",
+    "simple-git-hooks": "^2.7.0",
     "typescript": "^4.5.4",
     "vite": "^2.9.0"
   },
@@ -23,5 +26,12 @@
     "type": "git",
     "url": "git+https://github.com/islizeqiang/mini-react.git"
   },
-  "homepage": "https://github.com/islizeqiang/mini-react#readme"
+  "homepage": "https://github.com/islizeqiang/mini-react#readme",
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged --concurrent false"
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,tsx,ts,md,json}": "prettier --write",
+    "**/*.{js,ts}": "eslint --ext .js,.ts"
+  }
 }

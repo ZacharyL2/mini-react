@@ -55,7 +55,7 @@ const createElement = (type, props = {}, ...child) => {
   const isVirtualElement = (e) => typeof e === 'object';
 
   const children = child.map((c) =>
-    isVirtualElement(c) ? c : createTextElement(String(c))
+    isVirtualElement(c) ? c : createTextElement(String(c)),
   );
 
   return {
@@ -76,7 +76,7 @@ const updateDOM = (DOM, prevProps, nextProps) => {
     if (removePropKey.startsWith('on')) {
       DOM.removeEventListener(
         removePropKey.slice(2).toLowerCase(),
-        removePropValue
+        removePropValue,
       );
     } else if (removePropKey !== defaultPropKeys) {
       DOM[removePropKey] = '';
@@ -152,7 +152,7 @@ const commitRoot = () => {
             updateDOM(
               fiberNode.dom,
               fiberNode.alternate ? fiberNode.alternate.props : {},
-              fiberNode.props
+              fiberNode.props,
             );
             break;
           default:
@@ -200,7 +200,7 @@ const reconcileChildren = (fiberNode, elements = []) => {
     const isSameType = Boolean(
       oldFiberNode &&
         virtualElement &&
-        oldFiberNode.type === virtualElement.type
+        oldFiberNode.type === virtualElement.type,
     );
 
     if (isSameType && oldFiberNode) {
@@ -258,7 +258,7 @@ const performUnitOfWork = (fiberNode) => {
       if (typeof Object.getPrototypeOf(type).REACT_COMPONENT !== 'undefined') {
         const C = type;
         const component = new C(fiberNode.props);
-        /* eslint-disable react-hooks/rules-of-hooks */
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         const [state, setState] = useState(component.state);
         component.props = fiberNode.props;
         component.state = state;
@@ -355,7 +355,7 @@ function useState(initState) {
   };
   const queueLength = hook.queue.length;
 
-  /* eslint-disable no-unused-vars */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   for (const _ of [...Array(queueLength)]) {
     let newState = hook.queue.shift();
     if (isPlainObject(hook.state) && isPlainObject(newState)) {
