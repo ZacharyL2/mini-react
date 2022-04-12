@@ -244,6 +244,59 @@ const reconcileChildren = (fiberNode, elements = []) => {
   }
 };
 
+// Associate the hook with the fiber node.
+function useState(initState) {
+  let oldHook;
+
+  if (wipFiber.alternate && wipFiber.alternate.hooks) {
+    oldHook = wipFiber.alternate.hooks[hookIndex];
+  }
+
+  const hook = oldHook || {
+    state: initState,
+    queue: [],
+  };
+  const queueLength = hook.queue.length;
+
+  // eslint-disable-next-line no-unused-vars
+  for (const _ of [...Array(queueLength)]) {
+    let newState = hook.queue.shift();
+    if (isPlainObject(hook.state) && isPlainObject(newState)) {
+      newState = {
+        ...hook.state,
+        ...newState,
+      };
+    }
+
+    hook.state = newState;
+  }
+
+  if (typeof wipFiber.hooks === 'undefined') {
+    wipFiber.hooks = [];
+  }
+
+  wipFiber.hooks.push(hook);
+  hookIndex += 1;
+
+  const setState = (value) => {
+    hook.queue.push(value);
+
+    if (currentRoot) {
+      wipRoot = {
+        type: currentRoot.type,
+        dom: currentRoot.dom,
+        props: currentRoot.props,
+        alternate: currentRoot,
+      };
+      nextUnitOfWork = wipRoot;
+      deletions = [];
+      currentRoot = null;
+    }
+  };
+
+  return [hook.state, setState];
+}
+
 // Execute each unit task and return to the next unit task.
 // Different processing according to the type of fiber node.
 const performUnitOfWork = (fiberNode) => {
@@ -341,61 +394,9 @@ const render = (element, container) => {
   deletions = [];
 };
 
-// Associate the hook with the fiber node.
-function useState(initState) {
-  let oldHook;
-
-  if (wipFiber.alternate && wipFiber.alternate.hooks) {
-    oldHook = wipFiber.alternate.hooks[hookIndex];
-  }
-
-  const hook = oldHook || {
-    state: initState,
-    queue: [],
-  };
-  const queueLength = hook.queue.length;
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  for (const _ of [...Array(queueLength)]) {
-    let newState = hook.queue.shift();
-    if (isPlainObject(hook.state) && isPlainObject(newState)) {
-      newState = {
-        ...hook.state,
-        ...newState,
-      };
-    }
-
-    hook.state = newState;
-  }
-
-  if (typeof wipFiber.hooks === 'undefined') {
-    wipFiber.hooks = [];
-  }
-
-  wipFiber.hooks.push(hook);
-  hookIndex += 1;
-
-  const setState = (value) => {
-    hook.queue.push(value);
-
-    if (currentRoot) {
-      wipRoot = {
-        type: currentRoot.type,
-        dom: currentRoot.dom,
-        props: currentRoot.props,
-        alternate: currentRoot,
-      };
-      nextUnitOfWork = wipRoot;
-      deletions = [];
-      currentRoot = null;
-    }
-  };
-
-  return [hook.state, setState];
-}
-
 class Component {
   props;
+
   constructor(props) {
     this.props = props;
   }
