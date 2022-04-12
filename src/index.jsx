@@ -1,4 +1,4 @@
-import React from './mini-react.js';
+import React from './mini-react.ts';
 import './styles.css';
 
 function calculateWinner(squares) {

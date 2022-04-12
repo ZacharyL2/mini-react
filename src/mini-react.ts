@@ -1,10 +1,5 @@
 // TODO Optimization Type Description
 
-interface HookContent {
-  state: unknown;
-  queue: unknown[];
-}
-
 type DOM = Element | Text;
 type FiberNodeDOM = Element | Text | null | undefined;
 
@@ -26,12 +21,15 @@ interface FiberNode {
   props: VirtualElementProps;
   alternate: FiberNode | null;
   type?: VirtualElementType;
-  return?: FiberNode;
   dom?: FiberNodeDOM;
   effectTag?: string;
-  sibling?: FiberNode;
-  hooks?: HookContent[];
   child?: FiberNode;
+  return?: FiberNode;
+  sibling?: FiberNode;
+  hooks?: {
+    state: any;
+    queue: any[];
+  }[];
 }
 
 let wipRoot: FiberNode | null = null;
@@ -403,23 +401,19 @@ const render = (element: VirtualElement, container: Element) => {
 };
 
 // Associate the hook with the fiber node.
-function useState(initState: unknown): [unknown, (value: unknown) => void] {
-  let oldHook: undefined | HookContent;
+function useState<S = unknown>(initState: S): [S, (value: S) => void] {
+  const hook: {
+    state: S;
+    queue: S[];
+  } = wipFiber?.alternate?.hooks
+    ? wipFiber.alternate.hooks[hookIndex]
+    : {
+        state: initState,
+        queue: [],
+      };
 
-  if (wipFiber.alternate && wipFiber.alternate.hooks) {
-    oldHook = wipFiber.alternate.hooks[hookIndex];
-  }
-
-  const hook: HookContent = oldHook || {
-    state: initState,
-    queue: [],
-  };
-
-  const queueLength = hook.queue.length;
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  for (const _ of [...Array(queueLength)]) {
-    let newState = hook.queue.shift();
+  while (hook.queue.length) {
+    let newState = hook.queue.shift() as S;
     if (isPlainObject(hook.state) && isPlainObject(newState)) {
       newState = { ...hook.state, ...newState };
     }
@@ -431,10 +425,9 @@ function useState(initState: unknown): [unknown, (value: unknown) => void] {
   }
 
   wipFiber.hooks.push(hook);
-
   hookIndex += 1;
 
-  const setState = (value: unknown) => {
+  const setState = (value: S) => {
     hook.queue.push(value);
     if (currentRoot) {
       wipRoot = {

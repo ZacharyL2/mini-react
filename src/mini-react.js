@@ -343,28 +343,18 @@ const render = (element, container) => {
 
 // Associate the hook with the fiber node.
 function useState(initState) {
-  let oldHook;
+  const hook = wipFiber?.alternate?.hooks
+    ? wipFiber.alternate.hooks[hookIndex]
+    : {
+        state: initState,
+        queue: [],
+      };
 
-  if (wipFiber.alternate && wipFiber.alternate.hooks) {
-    oldHook = wipFiber.alternate.hooks[hookIndex];
-  }
-
-  const hook = oldHook || {
-    state: initState,
-    queue: [],
-  };
-  const queueLength = hook.queue.length;
-
-  // eslint-disable-next-line no-unused-vars
-  for (const _ of [...Array(queueLength)]) {
+  while (hook.queue.length) {
     let newState = hook.queue.shift();
     if (isPlainObject(hook.state) && isPlainObject(newState)) {
-      newState = {
-        ...hook.state,
-        ...newState,
-      };
+      newState = { ...hook.state, ...newState };
     }
-
     hook.state = newState;
   }
 
