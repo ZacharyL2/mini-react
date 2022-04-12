@@ -4,7 +4,6 @@ module.exports = {
     require.resolve('code-fabric/eslint-react'),
   ],
   rules: {
-    'prefer-const': 2,
     'max-classes-per-file': 0,
     'no-void': 0,
     'no-param-reassign': 0,
