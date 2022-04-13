@@ -38,9 +38,13 @@ const Fragment = Symbol.for('react.fragment');
 })(window);
 
 const isDef = (param) => param !== void 0 && param !== null;
+
 const isPlainObject = (val) =>
   Object.prototype.toString.call(val) === '[object Object]' &&
   [Object.prototype, null].includes(Object.getPrototypeOf(val));
+
+// Simple judgment of virtual elements.
+const isVirtualElement = (e) => typeof e === 'object';
 
 // Text elements require special handling.
 const createTextElement = (text) => ({
@@ -52,8 +56,6 @@ const createTextElement = (text) => ({
 
 // Create custom JavaScript data structures.
 const createElement = (type, props = {}, ...child) => {
-  const isVirtualElement = (e) => typeof e === 'object';
-
   const children = child.map((c) =>
     isVirtualElement(c) ? c : createTextElement(String(c)),
   );
@@ -250,10 +252,11 @@ const performUnitOfWork = (fiberNode) => {
   const { type } = fiberNode;
 
   switch (typeof type) {
-    case 'function':
+    case 'function': {
       wipFiber = fiberNode;
       wipFiber.hooks = [];
       hookIndex = 0;
+      let children;
 
       if (typeof Object.getPrototypeOf(type).REACT_COMPONENT !== 'undefined') {
         const C = type;
@@ -263,12 +266,18 @@ const performUnitOfWork = (fiberNode) => {
         component.props = fiberNode.props;
         component.state = state;
         component.setState = setState;
-        const children = component.render?.bind(component)();
+        children = component.render?.bind(component)();
         reconcileChildren(fiberNode, [children]);
       } else {
-        reconcileChildren(fiberNode, [type(fiberNode.props)]);
+        children = type(fiberNode.props);
       }
+      reconcileChildren(fiberNode, [
+        isVirtualElement(children)
+          ? children
+          : createTextElement(String(children)),
+      ]);
       break;
+    }
 
     case 'number':
     case 'string':

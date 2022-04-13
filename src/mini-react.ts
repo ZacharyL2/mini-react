@@ -2,10 +2,11 @@
 
 type DOM = Element | Text;
 type FiberNodeDOM = Element | Text | null | undefined;
+type ComponentFunction = (
+  props: Record<string, unknown>,
+) => VirtualElement | string;
 
-type VirtualElementType =
-  | ((props: Record<string, unknown>) => VirtualElement)
-  | string;
+type VirtualElementType = ComponentFunction | string;
 
 interface VirtualElementProps {
   children?: VirtualElement[];
@@ -78,6 +79,10 @@ const isPlainObject = (val: unknown): val is Record<string, any> =>
   Object.prototype.toString.call(val) === '[object Object]' &&
   [Object.prototype, null].includes(Object.getPrototypeOf(val));
 
+// Simple judgment of virtual elements.
+const isVirtualElement = (e: unknown): e is VirtualElement =>
+  typeof e === 'object';
+
 // Text elements require special handling.
 const createTextElement = (text: string): VirtualElement => ({
   type: 'TEXT',
@@ -92,8 +97,6 @@ const createElement = (
   props: Record<string, unknown> = {},
   ...child: (unknown | VirtualElement)[]
 ): VirtualElement => {
-  const isVirtualElement = (e: unknown): e is VirtualElement =>
-    typeof e === 'object';
   const children = child.map((c) =>
     isVirtualElement(c) ? c : createTextElement(String(c)),
   );
@@ -315,10 +318,12 @@ abstract class Component {
 const performUnitOfWork = (fiberNode: FiberNode): FiberNode | null => {
   const { type } = fiberNode;
   switch (typeof type) {
-    case 'function':
+    case 'function': {
       wipFiber = fiberNode;
       wipFiber.hooks = [];
       hookIndex = 0;
+      let children: ReturnType<ComponentFunction>;
+
       if (typeof Object.getPrototypeOf(type).REACT_COMPONENT !== 'undefined') {
         const C = type as unknown as {
           new (props: Record<string, unknown>): Component;
@@ -329,12 +334,18 @@ const performUnitOfWork = (fiberNode: FiberNode): FiberNode | null => {
         component.props = fiberNode.props;
         component.state = state;
         component.setState = setState;
-        const children = component.render.bind(component)();
-        reconcileChildren(fiberNode, [children]);
+        children = component.render.bind(component)();
       } else {
-        reconcileChildren(fiberNode, [type(fiberNode.props)]);
+        children = type(fiberNode.props);
       }
+      reconcileChildren(fiberNode, [
+        isVirtualElement(children)
+          ? children
+          : createTextElement(String(children)),
+      ]);
       break;
+    }
+
     case 'number':
     case 'string':
       if (!fiberNode.dom) {
