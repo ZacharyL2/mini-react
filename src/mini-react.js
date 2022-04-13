@@ -267,7 +267,6 @@ const performUnitOfWork = (fiberNode) => {
         component.state = state;
         component.setState = setState;
         children = component.render?.bind(component)();
-        reconcileChildren(fiberNode, [children]);
       } else {
         children = type(fiberNode.props);
       }
