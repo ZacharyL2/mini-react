@@ -1,35 +1,31 @@
 // TODO Optimization Type Description
 
-type DOM = Element | Text;
-type FiberNodeDOM = Element | Text | null | undefined;
-type ComponentFunction = (
-  props: Record<string, unknown>,
-) => VirtualElement | string;
-
+interface ComponentFunction {
+  new (props: Record<string, unknown>): Component;
+  (props: Record<string, unknown>): VirtualElement | string;
+}
 type VirtualElementType = ComponentFunction | string;
 
 interface VirtualElementProps {
   children?: VirtualElement[];
   [propName: string]: unknown;
 }
-
 interface VirtualElement {
   type: VirtualElementType;
   props: VirtualElementProps;
 }
 
-interface FiberNode {
-  props: VirtualElementProps;
-  alternate: FiberNode | null;
-  type?: VirtualElementType;
+type FiberNodeDOM = Element | Text | null | undefined;
+interface FiberNode<S = any> extends VirtualElement {
+  alternate: FiberNode<S> | null;
   dom?: FiberNodeDOM;
   effectTag?: string;
   child?: FiberNode;
   return?: FiberNode;
   sibling?: FiberNode;
   hooks?: {
-    state: any;
-    queue: any[];
+    state: S;
+    queue: S[];
   }[];
 }
 
@@ -113,7 +109,7 @@ const createElement = (
 // Update DOM properties.
 // For simplicity, we remove all the previous properties and add next properties.
 const updateDOM = (
-  DOM: NonNullable<DOM>,
+  DOM: NonNullable<FiberNodeDOM>,
   prevProps: VirtualElementProps,
   nextProps: VirtualElementProps,
 ) => {
@@ -179,13 +175,19 @@ const commitRoot = () => {
     return null;
   };
 
-  const commitDeletion = (parentDOM: FiberNodeDOM, DOM: DOM) => {
+  const commitDeletion = (
+    parentDOM: FiberNodeDOM,
+    DOM: NonNullable<FiberNodeDOM>,
+  ) => {
     if (isDef(parentDOM)) {
       parentDOM.removeChild(DOM);
     }
   };
 
-  const commitReplacement = (parentDOM: FiberNodeDOM, DOM: DOM) => {
+  const commitReplacement = (
+    parentDOM: FiberNodeDOM,
+    DOM: NonNullable<FiberNodeDOM>,
+  ) => {
     if (isDef(parentDOM)) {
       parentDOM.appendChild(DOM);
     }
@@ -324,10 +326,8 @@ const performUnitOfWork = (fiberNode: FiberNode): FiberNode | null => {
       hookIndex = 0;
       let children: ReturnType<ComponentFunction>;
 
-      if (typeof Object.getPrototypeOf(type).REACT_COMPONENT !== 'undefined') {
-        const C = type as unknown as {
-          new (props: Record<string, unknown>): Component;
-        };
+      if (Object.getPrototypeOf(type).REACT_COMPONENT) {
+        const C = type;
         const component = new C(fiberNode.props);
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const [state, setState] = useState(component.state);
@@ -413,29 +413,30 @@ const render = (element: VirtualElement, container: Element) => {
 
 // Associate the hook with the fiber node.
 function useState<S = unknown>(initState: S): [S, (value: S) => void] {
+  const fiberNode: FiberNode<S> = wipFiber;
   const hook: {
     state: S;
     queue: S[];
-  } = wipFiber?.alternate?.hooks
-    ? wipFiber.alternate.hooks[hookIndex]
+  } = fiberNode?.alternate?.hooks
+    ? fiberNode.alternate.hooks[hookIndex]
     : {
         state: initState,
         queue: [],
       };
 
   while (hook.queue.length) {
-    let newState = hook.queue.shift() as S;
+    let newState = hook.queue.shift()!;
     if (isPlainObject(hook.state) && isPlainObject(newState)) {
       newState = { ...hook.state, ...newState };
     }
     hook.state = newState;
   }
 
-  if (typeof wipFiber.hooks === 'undefined') {
-    wipFiber.hooks = [];
+  if (typeof fiberNode.hooks === 'undefined') {
+    fiberNode.hooks = [];
   }
 
-  wipFiber.hooks.push(hook);
+  fiberNode.hooks.push(hook);
   hookIndex += 1;
 
   const setState = (value: S) => {
