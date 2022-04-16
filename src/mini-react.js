@@ -258,7 +258,7 @@ const performUnitOfWork = (fiberNode) => {
       hookIndex = 0;
       let children;
 
-      if (typeof Object.getPrototypeOf(type).REACT_COMPONENT !== 'undefined') {
+      if (Object.getPrototypeOf(type).REACT_COMPONENT) {
         const C = type;
         const component = new C(fiberNode.props);
         // eslint-disable-next-line react-hooks/rules-of-hooks
