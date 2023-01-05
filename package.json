@@ -32,7 +32,10 @@
     "pre-commit": "npx lint-staged --concurrent false"
   },
   "lint-staged": {
-    "**/*.{js,jsx,tsx,ts}": "rome check && rome format --write",
-    "**/*.{css,html,md,json}": "prettier --write"
+    "**/*.{css,html,md,json}": "prettier --write",
+    "**/*.{js,jsx,tsx,ts}": [
+      "rome check",
+      "rome format --write"
+    ]
   }
 }
