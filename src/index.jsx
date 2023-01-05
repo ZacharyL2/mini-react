@@ -1,3 +1,5 @@
+/* eslint-disable */
+// Forked from https://reactjs.org/tutorial/tutorial.html#what-are-we-building
 import React from './mini-react.ts';
 import './styles.css';
 

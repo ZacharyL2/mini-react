@@ -261,7 +261,6 @@ const performUnitOfWork = (fiberNode) => {
       if (Object.getPrototypeOf(type).REACT_COMPONENT) {
         const C = type;
         const component = new C(fiberNode.props);
-        // eslint-disable-next-line react-hooks/rules-of-hooks
         const [state, setState] = useState(component.state);
         component.props = fiberNode.props;
         component.state = state;
@@ -363,7 +362,9 @@ function useState(initState) {
     if (isPlainObject(hook.state) && isPlainObject(newState)) {
       newState = { ...hook.state, ...newState };
     }
-    hook.state = newState;
+    if (isDef(newState)) {
+      hook.state = newState;
+    }
   }
 
   if (typeof wipFiber.hooks === 'undefined') {

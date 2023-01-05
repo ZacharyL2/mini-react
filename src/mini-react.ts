@@ -16,6 +16,7 @@ interface VirtualElement {
 }
 
 type FiberNodeDOM = Element | Text | null | undefined;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface FiberNode<S = any> extends VirtualElement {
   alternate: FiberNode<S> | null;
   dom?: FiberNodeDOM;
@@ -34,7 +35,7 @@ let nextUnitOfWork: FiberNode | null = null;
 let currentRoot: FiberNode | null = null;
 let deletions: FiberNode[] = [];
 let wipFiber: FiberNode;
-let hookIndex: number = 0;
+let hookIndex = 0;
 // Support React.Fragment syntax.
 const Fragment = Symbol.for('react.fragment');
 
@@ -68,10 +69,10 @@ const Fragment = Symbol.for('react.fragment');
   };
 })(window);
 
-const isDef = <T = any>(param: T): param is NonNullable<T> =>
+const isDef = <T>(param: T): param is NonNullable<T> =>
   param !== void 0 && param !== null;
 
-const isPlainObject = (val: unknown): val is Record<string, any> =>
+const isPlainObject = (val: unknown): val is Record<string, unknown> =>
   Object.prototype.toString.call(val) === '[object Object]' &&
   [Object.prototype, null].includes(Object.getPrototypeOf(val));
 
@@ -122,7 +123,7 @@ const updateDOM = (
         removePropValue as EventListener,
       );
     } else if (removePropKey !== defaultPropKeys) {
-      // @ts-ignore
+      // @ts-expect-error: Unreachable code error
       DOM[removePropKey] = '';
     }
   }
@@ -134,7 +135,7 @@ const updateDOM = (
         addPropValue as EventListener,
       );
     } else if (addPropKey !== defaultPropKeys) {
-      // @ts-ignore
+      // @ts-expect-error: Unreachable code error
       DOM[addPropKey] = addPropValue;
     }
   }
@@ -329,7 +330,6 @@ const performUnitOfWork = (fiberNode: FiberNode): FiberNode | null => {
       if (Object.getPrototypeOf(type).REACT_COMPONENT) {
         const C = type;
         const component = new C(fiberNode.props);
-        // eslint-disable-next-line react-hooks/rules-of-hooks
         const [state, setState] = useState(component.state);
         component.props = fiberNode.props;
         component.state = state;
@@ -412,7 +412,7 @@ const render = (element: VirtualElement, container: Element) => {
 };
 
 // Associate the hook with the fiber node.
-function useState<S = unknown>(initState: S): [S, (value: S) => void] {
+function useState<S>(initState: S): [S, (value: S) => void] {
   const fiberNode: FiberNode<S> = wipFiber;
   const hook: {
     state: S;
@@ -425,11 +425,13 @@ function useState<S = unknown>(initState: S): [S, (value: S) => void] {
       };
 
   while (hook.queue.length) {
-    let newState = hook.queue.shift()!;
+    let newState = hook.queue.shift();
     if (isPlainObject(hook.state) && isPlainObject(newState)) {
       newState = { ...hook.state, ...newState };
     }
-    hook.state = newState;
+    if (isDef(newState)) {
+      hook.state = newState;
+    }
   }
 
   if (typeof fiberNode.hooks === 'undefined') {
