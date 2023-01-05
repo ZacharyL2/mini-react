@@ -16,7 +16,7 @@ interface VirtualElement {
 }
 
 type FiberNodeDOM = Element | Text | null | undefined;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// rome-ignore lint/suspicious/noExplicitAny: <explanation>
 interface FiberNode<S = any> extends VirtualElement {
   alternate: FiberNode<S> | null;
   dom?: FiberNodeDOM;
@@ -246,7 +246,7 @@ const reconcileChildren = (
   let prevSibling: FiberNode | undefined = void 0;
   const virtualElements = elements.flat(Infinity);
 
-  if (fiberNode.alternate && fiberNode.alternate.child) {
+  if (fiberNode.alternate?.child) {
     oldFiberNode = fiberNode.alternate.child;
   }
 

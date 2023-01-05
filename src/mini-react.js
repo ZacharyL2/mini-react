@@ -189,7 +189,7 @@ const reconcileChildren = (fiberNode, elements = []) => {
   let prevSibling = void 0;
   const virtualElements = elements.flat(Infinity);
 
-  if (fiberNode.alternate && fiberNode.alternate.child) {
+  if (fiberNode.alternate?.child) {
     oldFiberNode = fiberNode.alternate.child;
   }
 
