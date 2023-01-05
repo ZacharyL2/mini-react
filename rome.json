@@ -1,0 +1,13 @@
+{
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single"
+    }
+  },
+  "formatter": {
+    "indentStyle": "space"
+  },
+  "files": {
+    "ignore": ["src/index.jsx"]
+  }
+}
