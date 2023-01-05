@@ -1,20 +1,21 @@
 module.exports = {
-  extends: [
-    require.resolve('code-fabric/eslint-base'),
-    require.resolve('code-fabric/eslint-react'),
-  ],
-  rules: {
-    'max-classes-per-file': 0,
-    'no-void': 0,
-    'no-param-reassign': 0,
-    'no-restricted-syntax': 0,
+  env: {
+    browser: true,
+    es2021: true,
   },
-  overrides: [
-    {
-      files: ['*.ts', '*.tsx'],
-      extends: [require.resolve('code-fabric/eslint-typescript')],
-    },
+  extends: [
+    'eslint:recommended',
+    'plugin:react/recommended',
+    'plugin:@typescript-eslint/recommended',
   ],
+  overrides: [],
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+  },
+  plugins: ['react', '@typescript-eslint'],
+  rules: {},
   settings: {
     react: {
       version: '18.x',

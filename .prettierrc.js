@@ -1,6 +1,7 @@
-const { prettier } = require('code-fabric');
-
 module.exports = {
-  ...prettier,
   printWidth: 80,
+  singleQuote: true,
+  trailingComma: 'all',
+  proseWrap: 'never',
+  endOfLine: 'lf',
 };
