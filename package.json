@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "vite",
+    "prepare": "simple-git-hooks",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
