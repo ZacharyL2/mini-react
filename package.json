@@ -1,24 +1,22 @@
 {
   "name": "mini-react",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "type": "module",
+  "packageManager": "pnpm@9.1.0",
   "scripts": {
-    "start": "vite",
-    "prepare": "simple-git-hooks",
+    "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
+  "dependencies": {},
   "devDependencies": {
-    "@vitejs/plugin-react": "^3.0.0",
-    "lint-staged": "^13.1.0",
-    "prettier": "^2.8.1",
-    "rome": "11.0.0",
-    "simple-git-hooks": "^2.8.1",
-    "typescript": "^4.9.4",
-    "vite": "^4.0.4"
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11"
   },
-  "keywords": [],
+  "keywords": [
+    "react"
+  ],
   "author": "",
   "license": "MIT",
   "bugs": {
@@ -28,15 +26,5 @@
     "type": "git",
     "url": "git+https://github.com/islizeqiang/mini-react.git"
   },
-  "homepage": "https://github.com/islizeqiang/mini-react#readme",
-  "simple-git-hooks": {
-    "pre-commit": "npx lint-staged --concurrent false"
-  },
-  "lint-staged": {
-    "**/*.{css,html,md,json}": "prettier --write",
-    "**/*.{js,jsx,tsx,ts}": [
-      "rome check",
-      "rome format --write"
-    ]
-  }
+  "homepage": "https://github.com/islizeqiang/mini-react#readme"
 }
