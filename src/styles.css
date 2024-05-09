@@ -1,20 +1,59 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
+  font-family: sans-serif;
   margin: 20px;
+  padding: 0;
 }
 
-ol,
+h1 {
+  margin-top: 0;
+  font-size: 22px;
+}
+
+h2 {
+  margin-top: 0;
+  font-size: 20px;
+}
+
+h3 {
+  margin-top: 0;
+  font-size: 18px;
+}
+
+h4 {
+  margin-top: 0;
+  font-size: 16px;
+}
+
+h5 {
+  margin-top: 0;
+  font-size: 14px;
+}
+
+h6 {
+  margin-top: 0;
+  font-size: 12px;
+}
+
+code {
+  font-size: 1.2em;
+}
+
 ul {
-  padding-left: 30px;
+  padding-inline-start: 20px;
 }
 
-.board-row:after {
-  clear: both;
-  content: '';
-  display: table;
+* {
+  box-sizing: border-box;
 }
 
-.status {
-  margin-bottom: 10px;
+body {
+  font-family: sans-serif;
+  margin: 20px;
+  padding: 0;
 }
 
 .square {
@@ -32,14 +71,15 @@ ul {
   width: 34px;
 }
 
-.square:focus {
-  outline: none;
+.board-row:after {
+  clear: both;
+  content: '';
+  display: table;
 }
 
-.kbd-navigation .square:focus {
-  background: #ddd;
+.status {
+  margin-bottom: 10px;
 }
-
 .game {
   display: flex;
   flex-direction: row;
