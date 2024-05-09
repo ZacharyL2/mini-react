@@ -16,7 +16,6 @@ interface VirtualElement {
 }
 
 type FiberNodeDOM = Element | Text | null | undefined;
-// rome-ignore lint/suspicious/noExplicitAny: <explanation>
 interface FiberNode<S = any> extends VirtualElement {
   alternate: FiberNode<S> | null;
   dom?: FiberNodeDOM;
