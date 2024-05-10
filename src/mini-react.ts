@@ -301,20 +301,6 @@ const reconcileChildren = (
   }
 };
 
-abstract class Component {
-  props: Record<string, unknown>;
-  abstract state: unknown;
-  abstract setState: (value: unknown) => void;
-  abstract render: () => VirtualElement;
-
-  constructor(props: Record<string, unknown>) {
-    this.props = props;
-  }
-
-  // Identify Component.
-  static REACT_COMPONENT = true;
-}
-
 // Execute each unit task and return to the next unit task.
 // Different processing according to the type of fiber node.
 const performUnitOfWork = (fiberNode: FiberNode): FiberNode | null => {
@@ -409,6 +395,20 @@ const render = (element: VirtualElement, container: Element) => {
   nextUnitOfWork = wipRoot;
   deletions = [];
 };
+
+abstract class Component {
+  props: Record<string, unknown>;
+  abstract state: unknown;
+  abstract setState: (value: unknown) => void;
+  abstract render: () => VirtualElement;
+
+  constructor(props: Record<string, unknown>) {
+    this.props = props;
+  }
+
+  // Identify Component.
+  static REACT_COMPONENT = true;
+}
 
 // Associate the hook with the fiber node.
 function useState<S>(initState: S): [S, (value: S) => void] {
