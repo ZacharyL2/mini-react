@@ -6,7 +6,7 @@
 
 # Demos
 
-[Online Demo](https://codesandbox.io/s/rough-dream-7muwux)
+[Online Demo](https://stackblitz.com/~/github.com/ZacharyL2/mini-react)
 
 A simple running screenshot:
 
@@ -14,9 +14,9 @@ A simple running screenshot:
 
 # Introduce
 
-I used the [tic-tac-toe tutorial example](https://reactjs.org/tutorial/tutorial.html#what-are-we-building) provided by React’s official website and can see that it works perfectly. In addition, it currently supports function components and class components, which may meet 80% of your needs!
+I used the [Tic-Tac-Toe](https://react.dev/learn/tutorial-tic-tac-toe) tutorial example provided on the React website, and it works well.
 
-This is what I created after reading a lot of [React](https://github.com/facebook/react)'s source code, it's basically the same as React in overall logic and function naming, if you're interested in React's internals, it's for you!
+Additionally, it supports both functional and class components. Its overall logic and function naming are largely consistent with React's fundamentals. If you are interested in the inner workings of React, then this tutorial is suitable for you!
 
 # License
 
