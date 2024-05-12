@@ -1,4 +1,3 @@
-// Forked from https://reactjs.org/tutorial/tutorial.html#what-are-we-building
 import React from './mini-react';
 
 const { useState } = React;

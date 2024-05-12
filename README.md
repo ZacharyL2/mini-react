@@ -18,6 +18,8 @@ I used the [Tic-Tac-Toe](https://react.dev/learn/tutorial-tic-tac-toe) tutorial 
 
 Additionally, it supports both functional and class components. Its overall logic and function naming are largely consistent with React's fundamentals. If you are interested in the inner workings of React, then this tutorial is suitable for you!
 
+[**See how to build it.**](https://webdeveloper.beehiiv.com/p/build-react-400-lines-code)
+
 # License
 
 [MIT](https://github.com/islizeqiang/mini-react/blob/master/LICENSE)
